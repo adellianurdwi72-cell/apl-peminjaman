@@ -1,152 +1,108 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_color.dart';
+import 'package:apl_peminjaman_barang/admin_screens/form_user_screen.dart';
 
-class DataUserScreen extends StatelessWidget {
+class User {
+  String name;
+  String email;
+  String role;
+
+  User({
+    required this.name,
+    required this.email,
+    required this.role,
+  });
+}
+
+class DataUserScreen extends StatefulWidget {
   const DataUserScreen({super.key});
+
+  @override
+  State<DataUserScreen> createState() => _DataUserScreenState();
+}
+
+class _DataUserScreenState extends State<DataUserScreen> {
+  final List<User> users = [
+    User(name: "Raib", email: "admin@gmail.com", role: "Admin"),
+    User(name: "Seli", email: "petugas@gmail.com", role: "Petugas"),
+    User(name: "Eko", email: "eko@gmail.com", role: "Anggota"),
+    User(name: "Citra", email: "citra@gmail.com", role: "Anggota"),
+  ];
+
+  void _addUser(User user) {
+    setState(() => users.add(user));
+  }
+
+  void _updateUser(int index, User user) {
+    setState(() => users[index] = user);
+  }
+
+  void _deleteUser(int index) {
+    setState(() => users.removeAt(index));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF3EEDC),
       appBar: AppBar(
-        title: const Text('Data User'),
-        backgroundColor: AppColor.primary,
+        title: const Text("Data User"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
-      drawer: _buildDrawer(context),
-
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // SEARCH
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Cari Pengguna...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFB7D2A3),
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          final result = await Navigator.push<User>(
+            context,
+            MaterialPageRoute(builder: (_) => const UserFormScreen()),
+          );
+          if (result != null) _addUser(result);
+        },
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
             ),
-
-            const SizedBox(height: 12),
-
-            Expanded(
-              child: ListView(
+            child: ListTile(
+              leading: const CircleAvatar(child: Icon(Icons.person)),
+              title: Text(user.name),
+              subtitle: Text("${user.email}\n${user.role}"),
+              isThreeLine: true,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _sectionTitle('Admin'),
-                  _userTile('Raib', 'raib@gmail.com'),
-
-                  _sectionTitle('Petugas'),
-                  _userTile('Seli', 'seli@gmail.com'),
-                  _userTile('Eko', 'eko@gmail.com'),
-
-                  _sectionTitle('Pengguna'),
-                  _userTile('Citra', 'citra@gmail.com'),
-                  _userTile('Dina', 'dina@gmail.com'),
-                  _userTile('Budi', 'budi@gmail.com'),
-                  _userTile('Fani', 'fani@gmail.com'),
-                  _userTile('Gilang', 'gilang@gmail.com'),
-                  _userTile('Ali', 'ali@gmail.com'),
-                  _userTile('Hana', 'hana@gmail.com'),
-                  _userTile('Akram', 'akram@gmail.com'),
-                  _userTile('Adzkiya', 'adzkiya@gmail.com'),
-                  _userTile('Elvano', 'elvano@gmail.com'),
-                  _userTile('Alisya', 'alisya@gmail.com'),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.green),
+                    onPressed: () async {
+                      final result = await Navigator.push<User>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserFormScreen(user: user),
+                        ),
+                      );
+                      if (result != null) _updateUser(index, result);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteUser(index),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
-    );
-  }
-
-  // 🔹 SECTION TITLE
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
-
-  // 🔹 USER TILE
-  Widget _userTile(String name, String email) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: const CircleAvatar(
-          backgroundColor: AppColor.softGreen,
-          child: Icon(Icons.person, color: Colors.black),
-        ),
-        title: Text(name),
-        subtitle: Text(email),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.edit, color: Colors.orange),
-            SizedBox(width: 8),
-            Icon(Icons.delete, color: Colors.red),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🔹 DRAWER
-  Drawer _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: AppColor.primary),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.soup_kitchen, size: 60, color: Colors.white),
-                SizedBox(height: 8),
-                Text(
-                  'PINJAMDAPUR',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              ],
-            ),
-          ),
-          _drawerItem(context, Icons.dashboard, 'Dashboard', '/dashboard'),
-          _drawerItem(context, Icons.inventory, 'Data Barang', '/data-barang'),
-          _drawerItem(context, Icons.people, 'Data User', '/data-user'),
-          _drawerItem(context, Icons.assignment, 'Peminjaman', '/peminjaman'),
-          _drawerItem(context, Icons.assignment_return, 'Pengembalian', '/pengembalian'),
-          const Spacer(),
-          _drawerItem(context, Icons.logout, 'Keluar', '/login'),
-        ],
-      ),
-    );
-  }
-
-  Widget _drawerItem(
-      BuildContext context, IconData icon, String title, String route) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, route);
-      },
     );
   }
 }
