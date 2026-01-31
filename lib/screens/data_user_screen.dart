@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:apl_peminjaman_barang/admin_screens/form_user_screen.dart';
+import 'package:apl_peminjaman_barang/screens/form_user_screen.dart';
 
 class User {
   String name;
