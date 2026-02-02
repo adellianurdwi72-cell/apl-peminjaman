@@ -1,17 +1,19 @@
-import '../config/supabase_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BarangService {
-  Future<List> getBarang() async {
-    final res = await supabase
+  final SupabaseClient supabase = Supabase.instance.client;
+
+  /// GET DATA BARANG
+  Future<List<Map<String, dynamic>>> getBarang() async {
+    final response = await supabase
         .from('barang')
         .select()
-        .order('nama_barang');
+        .order('nama', ascending: true);
 
-    return res;
+    return List<Map<String, dynamic>>.from(response);
   }
-}
 
-  // CREATE: tambah barang baru
+  /// TAMBAH BARANG
   Future<void> tambahBarang({
     required String nama,
     required int stok,
@@ -19,15 +21,14 @@ class BarangService {
     required String status,
   }) async {
     await supabase.from('barang').insert({
-      'barang_id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'nama_barang': nama,
+      'nama': nama,
       'stok': stok,
       'kondisi': kondisi,
-      'status_barang': status,
+      'status': status,
     });
   }
 
-  // UPDATE: ubah data barang
+  /// UPDATE BARANG  ✅ (INI YANG SERING ERROR)
   Future<void> updateBarang({
     required String id,
     required String nama,
@@ -35,15 +36,19 @@ class BarangService {
     required String kondisi,
     required String status,
   }) async {
-    await supabase.from('barang').update({
-      'nama_barang': nama,
-      'stok': stok,
-      'kondisi': kondisi,
-      'status_barang': status,
-    }).eq('barang_id', id);
+    await supabase
+        .from('barang')
+        .update({
+          'nama': nama,
+          'stok': stok,
+          'kondisi': kondisi,
+          'status': status,
+        })
+        .eq('id', id);
   }
 
-  // DELETE: hapus barang
+  /// HAPUS BARANG  ✅ (INI JUGA)
   Future<void> hapusBarang(String id) async {
-    await supabase.from('barang').delete().eq('barang_id', id);
+    await supabase.from('barang').delete().eq('id', id);
   }
+}

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'data_user_screen.dart';
+import '../models/app_user.dart';
+import '../models/user_model.dart';
 
 class UserFormScreen extends StatefulWidget {
-  final User? user;
+  final UserModel? user;
   const UserFormScreen({super.key, this.user});
 
   @override
@@ -18,10 +19,8 @@ class _UserFormScreenState extends State<UserFormScreen> {
   @override
   void initState() {
     super.initState();
-    nameController =
-        TextEditingController(text: widget.user?.name ?? "");
-    emailController =
-        TextEditingController(text: widget.user?.email ?? "");
+    nameController = TextEditingController(text: widget.user?.name ?? "");
+    emailController = TextEditingController(text: widget.user?.email ?? "");
     role = widget.user?.role ?? "Anggota";
   }
 
@@ -70,7 +69,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                   if (_formKey.currentState!.validate()) {
                     Navigator.pop(
                       context,
-                      User(
+                      AppUser(
                         name: nameController.text,
                         email: emailController.text,
                         role: role,
@@ -79,7 +78,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                   }
                 },
                 child: const Text("Simpan"),
-              )
+              ),
             ],
           ),
         ),

@@ -15,21 +15,11 @@ class Barang {
 
   factory Barang.fromMap(Map<String, dynamic> map) {
     return Barang(
-      id: map['barang_id'],
-      nama: map['nama_barang'],
+      id: map['id'].toString(), // 🔥 penting
+      nama: map['nama'],
       stok: map['stok'],
       kondisi: map['kondisi'],
-      status: map['status_barang'],
+      status: map['status'],
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'barang_id': id,
-      'nama_barang': nama,
-      'stok': stok,
-      'kondisi': kondisi,
-      'status_barang': status,
-    };
   }
 }

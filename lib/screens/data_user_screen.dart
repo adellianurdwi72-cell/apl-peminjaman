@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:apl_peminjaman_barang/screens/form_user_screen.dart';
-
-class User {
-  String name;
-  String email;
-  String role;
-
-  User({
-    required this.name,
-    required this.email,
-    required this.role,
-  });
-}
+import '../models/user_model.dart';
+import 'user_form_screen.dart';
 
 class DataUserScreen extends StatefulWidget {
   const DataUserScreen({super.key});
@@ -21,18 +10,18 @@ class DataUserScreen extends StatefulWidget {
 }
 
 class _DataUserScreenState extends State<DataUserScreen> {
-  final List<User> users = [
-    User(name: "Raib", email: "admin@gmail.com", role: "Admin"),
-    User(name: "Seli", email: "petugas@gmail.com", role: "Petugas"),
-    User(name: "Eko", email: "eko@gmail.com", role: "Anggota"),
-    User(name: "Citra", email: "citra@gmail.com", role: "Anggota"),
+  final List<UserModel> users = [
+    UserModel(name: "Raib", email: "admin@gmail.com", role: "Admin"),
+    UserModel(name: "Seli", email: "petugas@gmail.com", role: "Petugas"),
+    UserModel(name: "Eko", email: "eko@gmail.com", role: "Anggota"),
+    UserModel(name: "Citra", email: "citra@gmail.com", role: "Anggota"),
   ];
 
-  void _addUser(User user) {
+  void _addUser(UserModel user) {
     setState(() => users.add(user));
   }
 
-  void _updateUser(int index, User user) {
+  void _updateUser(int index, UserModel user) {
     setState(() => users[index] = user);
   }
 
@@ -54,7 +43,7 @@ class _DataUserScreenState extends State<DataUserScreen> {
         backgroundColor: const Color(0xFFB7D2A3),
         child: const Icon(Icons.add),
         onPressed: () async {
-          final result = await Navigator.push<User>(
+          final result = await Navigator.push<UserModel>(
             context,
             MaterialPageRoute(builder: (_) => const UserFormScreen()),
           );
@@ -84,7 +73,7 @@ class _DataUserScreenState extends State<DataUserScreen> {
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.green),
                     onPressed: () async {
-                      final result = await Navigator.push<User>(
+                      final result = await Navigator.push<UserModel>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => UserFormScreen(user: user),
