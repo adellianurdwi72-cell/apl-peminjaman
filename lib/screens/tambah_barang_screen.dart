@@ -1,10 +1,11 @@
-import 'package:apl_peminjaman_barang/services/barang_services.dart';
 import 'package:flutter/material.dart';
-import '../models/barang_model.dart';
+import '../services/barang_service.dart';
 
 class TambahBarangScreen extends StatefulWidget {
-  final Map<String, dynamic>? barang; // barang dari Supabase (jika edit)
-  const TambahBarangScreen({super.key, this.barang});
+  final String kategoriId;
+  final Map<String, dynamic>? barang;
+
+  const TambahBarangScreen({super.key, required this.kategoriId, this.barang});
 
   @override
   State<TambahBarangScreen> createState() => _TambahBarangScreenState();
@@ -14,21 +15,27 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
   final barangService = BarangService();
 
   final namaController = TextEditingController();
-  final kategoriController = TextEditingController();
   final jumlahController = TextEditingController();
-  final statusController = TextEditingController();
 
+  String status = 'tersedia';
   bool loading = false;
 
   @override
   void initState() {
     super.initState();
+
     if (widget.barang != null) {
-      namaController.text = widget.barang!['nama_barang'] ?? '';
-      kategoriController.text = widget.barang!['kategori'] ?? '';
+      namaController.text = widget.barang!['nama'] ?? '';
       jumlahController.text = widget.barang!['stok']?.toString() ?? '';
-      statusController.text = widget.barang!['status_barang'] ?? '';
+      status = widget.barang!['status'] ?? 'tersedia';
     }
+  }
+
+  @override
+  void dispose() {
+    namaController.dispose();
+    jumlahController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,15 +55,36 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
         child: Column(
           children: [
             _input("Nama Barang", namaController),
-            _input("Kategori", kategoriController),
-            _input("Jumlah", jumlahController, keyboardType: TextInputType.number),
-            _input("Status", statusController),
+            _input(
+              "Jumlah Stok",
+              jumlahController,
+              keyboardType: TextInputType.number,
+            ),
+
+            DropdownButtonFormField<String>(
+              value: status,
+              decoration: const InputDecoration(
+                labelText: "Status",
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              items: const [
+                DropdownMenuItem(value: 'tersedia', child: Text('Tersedia')),
+                DropdownMenuItem(value: 'menipis', child: Text('Stok Menipis')),
+                DropdownMenuItem(value: 'habis', child: Text('Stok Habis')),
+              ],
+              onChanged: (v) => setState(() => status = v!),
+            ),
+
             const SizedBox(height: 20),
+
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                    ),
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Batal"),
                   ),
@@ -64,10 +92,19 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFF0B45B)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF0B45B),
+                    ),
                     onPressed: loading ? null : _simpan,
                     child: loading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : const Text("Simpan"),
                   ),
                 ),
@@ -81,46 +118,49 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
 
   Future<void> _simpan() async {
     final nama = namaController.text.trim();
-    final kategori = kategoriController.text.trim();
-    final jumlah = jumlahController.text.trim();
-    final status = statusController.text.trim();
+    final stok = int.tryParse(jumlahController.text.trim());
 
-    if (nama.isEmpty || kategori.isEmpty || jumlah.isEmpty || status.isEmpty) return;
+    if (nama.isEmpty || stok == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Data tidak valid')));
+      return;
+    }
 
     setState(() => loading = true);
 
     try {
       if (widget.barang == null) {
-        // Tambah Barang Baru
         await barangService.tambahBarang(
           nama: nama,
-          stok: int.parse(jumlah),
-          kondisi: kategori,
+          kategoriId: widget.kategoriId,
+          stok: stok,
           status: status,
         );
       } else {
-        // Update Barang
         await barangService.updateBarang(
-          id: widget.barang!['barang_id'],
+          id: widget.barang!['id'],
           nama: nama,
-          stok: int.parse(jumlah),
-          kondisi: kategori,
+          stok: stok,
           status: status,
         );
       }
 
-      Navigator.pop(context, true); // kirim tanda berhasil
+      Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menyimpan barang: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menyimpan: $e')));
     } finally {
       setState(() => loading = false);
     }
   }
 
-  Widget _input(String hint, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text}) {
+  Widget _input(
+    String hint,
+    TextEditingController controller, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(

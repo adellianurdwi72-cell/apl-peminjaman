@@ -1,54 +1,52 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BarangService {
-  final SupabaseClient supabase = Supabase.instance.client;
+  final _db = Supabase.instance.client;
 
-  /// GET DATA BARANG
-  Future<List<Map<String, dynamic>>> getBarang() async {
-    final response = await supabase
-        .from('barang')
-        .select()
-        .order('nama', ascending: true);
-
-    return List<Map<String, dynamic>>.from(response);
+  // 🔹 Ambil kategori
+  Future<List<Map<String, dynamic>>> getKategori() async {
+    return await _db.from('kategori').select().order('nama');
   }
 
-  /// TAMBAH BARANG
+  // 🔹 Ambil barang per kategori
+  Future<List<Map<String, dynamic>>> getBarang(String kategoriId) async {
+    return await _db
+        .from('barang')
+        .select()
+        .eq('kategori_id', kategoriId)
+        .order('nama');
+  }
+
+  // ➕ Tambah barang
   Future<void> tambahBarang({
     required String nama,
+    required String kategoriId,
     required int stok,
-    required String kondisi,
     required String status,
   }) async {
-    await supabase.from('barang').insert({
+    await _db.from('barang').insert({
       'nama': nama,
+      'kategori_id': kategoriId,
       'stok': stok,
-      'kondisi': kondisi,
       'status': status,
     });
   }
 
-  /// UPDATE BARANG  ✅ (INI YANG SERING ERROR)
+  // ✏️ Update barang
   Future<void> updateBarang({
     required String id,
     required String nama,
     required int stok,
-    required String kondisi,
     required String status,
   }) async {
-    await supabase
+    await _db
         .from('barang')
-        .update({
-          'nama': nama,
-          'stok': stok,
-          'kondisi': kondisi,
-          'status': status,
-        })
+        .update({'nama': nama, 'stok': stok, 'status': status})
         .eq('id', id);
   }
 
-  /// HAPUS BARANG  ✅ (INI JUGA)
+  // 🗑️ Hapus barang
   Future<void> hapusBarang(String id) async {
-    await supabase.from('barang').delete().eq('id', id);
+    await _db.from('barang').delete().eq('id', id);
   }
 }

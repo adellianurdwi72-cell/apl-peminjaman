@@ -1,58 +1,80 @@
 import 'package:flutter/material.dart';
+import '../services/barang_service.dart';
+import 'tambah_barang_screen.dart';
 
-class BarangListScreen extends StatelessWidget {
-  final String kategori;
-  const BarangListScreen({super.key, required this.kategori});
+class BarangListScreen extends StatefulWidget {
+  final String kategoriId;
+  final String title;
+
+  const BarangListScreen({
+    super.key,
+    required this.kategoriId,
+    required this.title,
+  });
+
+  @override
+  State<BarangListScreen> createState() => _BarangListScreenState();
+}
+
+class _BarangListScreenState extends State<BarangListScreen> {
+  final service = BarangService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xffEAE6CF),
       appBar: AppBar(
-        leading: BackButton(color: Colors.black),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(kategori, style: const TextStyle(color: Colors.black)),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          BarangItem(nama: "Pisau", status: "Tersedia"),
-          BarangItem(nama: "Whisk", status: "Dipinjam"),
-          BarangItem(nama: "Sendok Takar", status: "Tersedia"),
-          BarangItem(nama: "Blow Torch", status: "Dipinjam"),
-        ],
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TambahBarangScreen(kategoriId: widget.kategoriId),
+            ),
+          );
+          if (result == true) setState(() {});
+        },
       ),
-    );
-  }
-}
+      body: FutureBuilder(
+        future: service.getBarang(widget.kategoriId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-class BarangItem extends StatelessWidget {
-  final String nama;
-  final String status;
+          final list = snapshot.data!;
 
-  const BarangItem({super.key, required this.nama, required this.status});
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final b = list[index];
 
-  @override
-  Widget build(BuildContext context) {
-    final tersedia = status == "Tersedia";
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.inventory),
-          const SizedBox(width: 12),
-          Expanded(child: Text(nama)),
-          CircleAvatar(
-            radius: 6,
-            backgroundColor: tersedia ? Colors.green : Colors.red,
-          ),
-        ],
+              return ListTile(
+                tileColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                title: Text(b['nama']),
+                subtitle: Text("Stok: ${b['stok']} • ${b['status']}"),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    await service.hapusBarang(b['id']);
+                    setState(() {});
+                  },
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

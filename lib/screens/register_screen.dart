@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
+import '../routes/route_names.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -49,7 +50,7 @@ class RegisterScreen extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 50),
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
+                Navigator.pushReplacementNamed(context, RouteNames.dashboard);
               },
               child: const Text('Daftar'),
             ),

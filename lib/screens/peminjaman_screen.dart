@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'peminjaman_form_screen.dart';
+import '../widgets/app_drawer.dart';
 
 class Peminjaman {
   String nama;
@@ -64,6 +65,11 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint('PeminjamanScreen terbuka');
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3EEDC),
@@ -79,9 +85,7 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
         onPressed: () async {
           final result = await Navigator.push<Peminjaman>(
             context,
-            MaterialPageRoute(
-              builder: (_) => const PeminjamanFormScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const PeminjamanFormScreen()),
           );
           if (result != null) {
             setState(() => list.add(result));
@@ -116,14 +120,11 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             data.nama,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Chip(
                             label: Text(
@@ -133,17 +134,13 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                                 fontSize: 11,
                               ),
                             ),
-                            backgroundColor:
-                                _statusColor(data.status),
+                            backgroundColor: _statusColor(data.status),
                           ),
                         ],
                       ),
                       Text(data.barang),
                       const SizedBox(height: 4),
-                      Text(
-                        data.tanggal,
-                        style: const TextStyle(fontSize: 12),
-                      ),
+                      Text(data.tanggal, style: const TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
@@ -154,12 +151,9 @@ class _PeminjamanScreenState extends State<PeminjamanScreen> {
                     }
                   },
                   itemBuilder: (_) => const [
-                    PopupMenuItem(
-                      value: "hapus",
-                      child: Text("Hapus"),
-                    ),
+                    PopupMenuItem(value: "hapus", child: Text("Hapus")),
                   ],
-                )
+                ),
               ],
             ),
           );
